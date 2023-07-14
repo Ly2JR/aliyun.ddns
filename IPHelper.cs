@@ -34,7 +34,7 @@ namespace neverland.aliyun.ddns
                     if (ri.ElementAt(0) == "0")
                     {
                         var ttl = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_TTL).Value;
-                        Console.WriteLine($"ip地址查询受限,等待{ttl.ElementAt(0)}秒后重试");
+                        Console.WriteLine($"{Contracts.TITLE}ip地址查询受限,等待{ttl.ElementAt(0)}秒后重试");
                         return string.Empty;
                     }
                 }

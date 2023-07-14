@@ -8,6 +8,9 @@ namespace neverland.aliyun.ddns
 {
     public sealed class Contracts
     {
+
+        public const string TITLE = "NEVERLAND.ALIYUN.DDNS - ";
+
         /// <summary>
         /// 注意:请勿生产环境使用,
         /// 生产环境请使用`VAR_ALIBABA_CLOUD_ACCESS_KEY_ID`从环境变量获取

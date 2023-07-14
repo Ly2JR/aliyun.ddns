@@ -40,7 +40,7 @@ namespace neverland.aliyun.ddns
             //查询外网地址
             var networkIp = await IPHelper.GetNetworkIPv4();
             if (string.IsNullOrEmpty(networkIp)) return;
-
+            Console.WriteLine($"{Contracts.TITLE}外网地址:{networkIp}");
             //
             var client = CreateClient(accessKeyId, accessKeySecret);
             //参数
@@ -58,11 +58,11 @@ namespace neverland.aliyun.ddns
             {
                 // 复制代码运行请自行打印 API 的返回值
                var response= client.AddDomainRecordWithOptions(addDomainRecordRequest, runtime);
-               var aa = response;
+               Console.WriteLine($"{Contracts.TITLE}同步成功,RequestId:{response.Body.RequestId},RecordId:{response.Body.RecordId}");
             }
             catch (TeaException error)
             {
-                Console.WriteLine($"阿里云DDNS同步失败,{error.Code},{error.Message}");
+                Console.WriteLine($"{Contracts.TITLE}同步失败,{error.Code},{error.Message}");
                 //// 如有需要，请打印 error
                 //Common.AssertAsString(error.Message);
             }
@@ -72,7 +72,7 @@ namespace neverland.aliyun.ddns
                 {
                     { "message", _error.Message }
                 });
-                Console.WriteLine($"阿里云DDNS同步失败,{error.Code},{error.Message}");
+                Console.WriteLine($"{Contracts.TITLE}同步失败,{error.Code},{error.Message}");
                 //// 如有需要，请打印 error
                 //Common.AssertAsString(error.Message);
             }
