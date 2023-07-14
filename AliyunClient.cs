@@ -35,12 +35,8 @@ namespace neverland.aliyun.ddns
             return new Client(config);
         }
 
-        public static async Task Run(string accessKeyId, string accessKeySecret,string domain,int ttl=600)
+        private static void Add(string accessKeyId, string accessKeySecret, string domain,string ip,int ttl = 600)
         {
-            //查询外网地址
-            var networkIp = await IPHelper.GetNetworkIPv4();
-            if (string.IsNullOrEmpty(networkIp)) return;
-            Console.WriteLine($"{Contracts.TITLE}外网地址:{networkIp}");
             //
             var client = CreateClient(accessKeyId, accessKeySecret);
             //参数
@@ -49,7 +45,7 @@ namespace neverland.aliyun.ddns
                 DomainName = domain,//域名名称
                 RR = Contracts.DEFAULT_ALIBABA_REQUEST_RR,//主机记录
                 Type = "A",//解析记录类型
-                Value = networkIp,//记录值
+                Value = ip,//记录值
                 TTL = ttl
             };
             //运行时高级配置
@@ -57,8 +53,8 @@ namespace neverland.aliyun.ddns
             try
             {
                 // 复制代码运行请自行打印 API 的返回值
-               var response= client.AddDomainRecordWithOptions(addDomainRecordRequest, runtime);
-               Console.WriteLine($"{Contracts.TITLE}同步成功,RequestId:{response.Body.RequestId},RecordId:{response.Body.RecordId}");
+                var response = client.AddDomainRecordWithOptions(addDomainRecordRequest, runtime);
+                Console.WriteLine($"{Contracts.TITLE}同步成功,RequestId:{response.Body.RequestId},RecordId:{response.Body.RecordId}");
             }
             catch (TeaException error)
             {
@@ -76,6 +72,16 @@ namespace neverland.aliyun.ddns
                 //// 如有需要，请打印 error
                 //Common.AssertAsString(error.Message);
             }
+        }
+
+        public static async Task Run(string accessKeyId, string accessKeySecret,string domain,int ttl=600)
+        {
+            //查询外网地址
+            var networkIp = await IPHelper.GetNetworkIPv4();
+            if (string.IsNullOrEmpty(networkIp)) return;
+            Add(accessKeyId, accessKeySecret, domain, networkIp,ttl);
+            Console.WriteLine($"{Contracts.TITLE}外网地址:{networkIp}");
+           
         }
     }
 }

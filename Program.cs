@@ -1,4 +1,5 @@
 ﻿using neverland.aliyun.ddns;
+using System.Diagnostics;
 
 //默认值
 var key = Contracts.DEBUG_ALIBABA_CLOUD_ACCESS_KEY_ID;
