@@ -39,37 +39,55 @@ var varTtl = Environment.GetEnvironmentVariable(Contracts.VAR_ALIBABA_CLOUD_TTL)
 key = varKey;
 keySct = varKeySecret;
 domain = varDomain;
-if(int.TryParse(varTtl, out int t))
+if (int.TryParse(varTtl, out int t))
 {
     ttl = t;
 }
 
-//获取阿里OPENAPI客户端
-var client = CreateClient(key,keySct);
-//查询已有记录
-var query = QueryDns(client, domain);
-if (query != null)
+Console.WriteLine("Press `q` to exit.");
+var exitKey = Console.ReadLine();
+
+var lastNetworkIpAddress = "127.0.0.1";
+
+while (exitKey == null || (exitKey != null && !exitKey.ToLower().Equals(Contracts.DEFAULT_EXIT_KEY)))
 {
     //查询外网地址
     var networkIp = await IPHelper.GetNetworkIPv4();
-    if (string.IsNullOrEmpty(networkIp)) return;
-    var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.Value == networkIp);
-    if (record == null)//新增云解析
+    Console.WriteLine($"公网IP:{networkIp}");
+
+    if (!string.IsNullOrEmpty(networkIp)&&!networkIp.Equals(lastNetworkIpAddress))
     {
-        var add=AddDns(client, networkIp,domain,ttl);
-        if (add != null)
+        //加个公网IP缓存，IP地址变动时更新
+        lastNetworkIpAddress = networkIp;
+
+        //获取阿里OPENAPI客户端
+        var client = CreateClient(key, keySct);
+        //查询已有记录
+        var query = QueryDns(client, domain);
+        if (query != null)
         {
-            Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{domain},地址:{networkIp}");
+            var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.Value == networkIp);
+            if (record == null)//新增云解析
+            {
+                var add = AddDns(client, networkIp, domain, ttl);
+                if (add != null)
+                {
+                    Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{domain},地址:{networkIp}");
+                }
+            }
+            else //修改云解析
+            {
+                var update = UpdateDns(client, record.RecordId, networkIp);
+                if (update != null)
+                {
+                    Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{domain},地址:{networkIp}");
+                }
+            }
         }
     }
-    else //修改云解析
-    {
-        var update = UpdateDns(client, record.RecordId,networkIp);
-        if (update != null)
-        {
-            Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{domain},地址:{networkIp}");
-        }
-    }
+
+    await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
+    exitKey = Console.ReadLine();
 }
 
 #region 阿里OPENAPI
@@ -94,26 +112,26 @@ Client CreateClient(string accessKey, string accessKeySecret)
     return new Client(config);
 }
 
-UpdateDomainRecordResponse? UpdateDns(Client client,string recordId,string newIp,string RR=Contracts.DEFAULT_ALIBABA_REQUEST_RR,string type=Contracts.DEFAULT_ALIBABA_REQUEST_TYPE_4)
+UpdateDomainRecordResponse? UpdateDns(Client client, string recordId, string newIp, string RR = Contracts.DEFAULT_ALIBABA_REQUEST_RR, string type = Contracts.DEFAULT_ALIBABA_REQUEST_TYPE_4)
 {
     UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest()
     {
-        RecordId=recordId,
+        RecordId = recordId,
         RR = RR,
-        Type= type,
-        Value= newIp,
+        Type = type,
+        Value = newIp,
     };
     RuntimeOptions runtime = new RuntimeOptions();
     try
     {
         // 复制代码运行请自行打印 API 的返回值
-       var response= client.UpdateDomainRecordWithOptions(updateDomainRecordRequest, runtime);
+        var response = client.UpdateDomainRecordWithOptions(updateDomainRecordRequest, runtime);
         return response;
     }
     catch (TeaException error)
     {
         // 如有需要，请打印 error
-        var msg=Common.AssertAsString(error.Message);
+        var msg = Common.AssertAsString(error.Message);
         Console.WriteLine($"{Contracts.TITLE}修改云解析失败,{msg}");
     }
     catch (Exception _error)
@@ -123,30 +141,31 @@ UpdateDomainRecordResponse? UpdateDns(Client client,string recordId,string newIp
                     { "message", _error.Message }
                 });
         // 如有需要，请打印 error
-        var msg= Common.AssertAsString(error.Message);
+        var msg = Common.AssertAsString(error.Message);
         Console.WriteLine($"{Contracts.TITLE}修改云解析失败,{msg}");
     }
     return null;
 }
 
-DescribeDomainRecordsResponse? QueryDns(Client client,string domain= Contracts.DEBUG_ALIBABA_DOMAIN,string type=Contracts.DEFAULT_ALIBABA_REQUEST_TYPE_4)
+DescribeDomainRecordsResponse? QueryDns(Client client, string domain = Contracts.DEBUG_ALIBABA_DOMAIN, string type = Contracts.DEFAULT_ALIBABA_REQUEST_TYPE_4)
 {
-    DescribeDomainRecordsRequest describeDomainRecordsRequest = new DescribeDomainRecordsRequest() { 
+    DescribeDomainRecordsRequest describeDomainRecordsRequest = new DescribeDomainRecordsRequest()
+    {
         DomainName = domain,
-        Type= type
+        Type = type
     };
     RuntimeOptions runtime = new RuntimeOptions();
     try
     {
         // 复制代码运行请自行打印 API 的返回值
-        var response=client.DescribeDomainRecordsWithOptions(describeDomainRecordsRequest, runtime);
+        var response = client.DescribeDomainRecordsWithOptions(describeDomainRecordsRequest, runtime);
         return response;
     }
     catch (TeaException error)
     {
         // 如有需要，请打印 error
-        var msg=Common.AssertAsString(error.Message);
-       
+        var msg = Common.AssertAsString(error.Message);
+
     }
     catch (Exception _error)
     {
@@ -155,13 +174,13 @@ DescribeDomainRecordsResponse? QueryDns(Client client,string domain= Contracts.D
                     { "message", _error.Message }
                 });
         // 如有需要，请打印 error
-        var msg=Common.AssertAsString(error.Message);
+        var msg = Common.AssertAsString(error.Message);
         Console.WriteLine($"{Contracts.TITLE}查询云解析失败,{msg}");
     }
     return null;
 }
 
-AddDomainRecordResponse? AddDns(Client client, string newIp, string domain = Contracts.DEBUG_ALIBABA_DOMAIN,  int ttl = Contracts.DEFAULT_ALIBABA_REQUEST_TTL)
+AddDomainRecordResponse? AddDns(Client client, string newIp, string domain = Contracts.DEBUG_ALIBABA_DOMAIN, int ttl = Contracts.DEFAULT_ALIBABA_REQUEST_TTL)
 {
     //参数
     AddDomainRecordRequest addDomainRecordRequest = new AddDomainRecordRequest()
@@ -183,7 +202,7 @@ AddDomainRecordResponse? AddDns(Client client, string newIp, string domain = Con
     catch (TeaException error)
     {
         // 如有需要，请打印 error
-        var msg=Common.AssertAsString(error.Message);
+        var msg = Common.AssertAsString(error.Message);
         Console.WriteLine($"{Contracts.TITLE}新增云解析失败,{msg}");
     }
     catch (Exception _error)
@@ -193,7 +212,7 @@ AddDomainRecordResponse? AddDns(Client client, string newIp, string domain = Con
                     { "message", _error.Message }
                 });
         // 如有需要，请打印 error
-        var msg=Common.AssertAsString(error.Message);
+        var msg = Common.AssertAsString(error.Message);
         Console.WriteLine($"{Contracts.TITLE}新增云解析失败,{msg}");
     }
     return null;

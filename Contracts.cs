@@ -49,6 +49,15 @@ namespace neverland.aliyun.ddns
         /// </summary>
         public const int DEFAULT_ALIBABA_REQUEST_TTL = 600;
 
+        /// <summary>
+        /// 检测频率
+        /// 单位：s
+        /// </summary>
+        public const int DEFAULT_EXECUTION_FREQUENCY = 600;
+
+        /// <summary>
+        /// </summary>
+        public const string DEFAULT_EXIT_KEY = "q";
 
         public const string VAR_ALIBABA_CLOUD_ACCESS_KEY_ID = "ALIKID";
         public const string VAR_ALIBABA_CLOUD_ACCESS_KEY_SECRET = "ALIKSCT";
@@ -61,13 +70,15 @@ namespace neverland.aliyun.ddns
         /// </summary>
         public const string VAR_ALIBABA_CLOUD_TTL = "ALITTL";
 
-        public const string QUERY_IPADDRESS_URL = "http://ip-api.com/";
+        public const string QUERY_IPADDRESS_URL = "http://ip-api.com";
+
+        public const string QUERY_IPADDRESS_DOMAIN = "ip-api.com";
         /// <summary>
         /// 查询本地外网地址
         /// 只查询IP地址和状态
         /// <see cref="http://ip-api.com"/>
         /// </summary>
-        public const string QUERY_IPADDRESS_RESOURCE = "json/?lang=zh-CN&fields=status,query";
+        public const string QUERY_IPADDRESS_RESOURCE = "/json/?lang=zh-CN&fields=status,query";
 
         public const string QUERY_IPADDRESS_HEADER_TTL = "X-Ttl";
         public const string QUERY_IPADDRESS_HEADER_RI = "X-Rl";

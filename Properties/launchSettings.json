@@ -8,6 +8,16 @@
         "ALIDOMAIN": "ilyl.life",
         "ALITTL": "600"
       }
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {
+        "ALIDOMAIN": "ilyl.life",
+        "ALIKID": "11",
+        "ALIKSCT": "11",
+        "ALITTL": "600"
+      },
+      "distributionName": ""
     }
   }
 }
