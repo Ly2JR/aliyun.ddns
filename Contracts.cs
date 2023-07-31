@@ -53,7 +53,7 @@ namespace neverland.aliyun.ddns
         /// 检测频率
         /// 单位：s
         /// </summary>
-        public const int DEFAULT_EXECUTION_FREQUENCY = 10;
+        public const int DEFAULT_EXECUTION_FREQUENCY = 600;
 
         /// <summary>
         /// </summary>

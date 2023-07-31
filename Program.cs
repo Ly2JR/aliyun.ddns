@@ -78,9 +78,7 @@ while (!cts.IsCancellationRequested)
             Environment.Exit(0);
             return;
         }
-
-        var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == varDomain);
-        if (record == null)//新增云解析
+        if (query.Body.DomainRecords.Record.Count == 0)
         {
             var add = AddDns(client, networkIp, varDomain, ttl);
             if (add == null)
@@ -92,24 +90,36 @@ while (!cts.IsCancellationRequested)
             }
             Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{varDomain},地址:{networkIp}");
         }
-        else //修改云解析
+        else
         {
-            var update = UpdateDns(client, record.RecordId, networkIp);
-            if (update == null)
+            var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == varDomain);
+            if (record != null)//新增云解析
             {
-                Console.WriteLine("修改阿里云信息错误,3秒后退出...");
-                cts.CancelAfter(TimeSpan.FromMilliseconds(3_000));
-                Environment.Exit(0);
-                return;
+                if (!record.Value.Equals(networkIp))
+                {
+                    var update = UpdateDns(client, record.RecordId, networkIp);
+                    if (update == null)
+                    {
+                        Console.WriteLine("修改阿里云信息错误,3秒后退出...");
+                        cts.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+                        Environment.Exit(0);
+                        return;
+                    }
+                    Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{varDomain},地址:{networkIp}");
+                }
+                else
+                {
+                    Console.WriteLine($"公网IP:{networkIp}无变化，无需同步");
+                }
             }
-            Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{varDomain},地址:{networkIp}");
         }
+        
         //加个公网IP缓存，IP地址变动时更新
         lastNetworkIpAddress = networkIp;
     }
     else
     {
-        Console.WriteLine("公网IP无变化，无需更新");
+        Console.WriteLine($"公网IP:{networkIp}无变化，无需同步");
     }
 
     await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
