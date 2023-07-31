@@ -17,8 +17,8 @@ COPY --from=build-env /neverland.aliyun.ddns/bin/Release/net7.0/publish .
 ENTRYPOINT ["dotnet", "neverland.aliyun.ddns.dll"]
 
 ENV DOTNET_EnableDiagnostics=0 \
-    ALIKID="" \
-    ALIKSCT="" \
-    ALIDOMAIN="" \
+    ALIKID= \
+    ALIKSCT= \
+    ALIDOMAIN=ilyl.life \
     ALITTL=600
 

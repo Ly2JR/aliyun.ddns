@@ -1,9 +1,21 @@
-# °¢ÀïÔÆDDNSÍ¬²½
+# é˜¿é‡Œäº‘DDNSåŒæ­¥
 
-ÀûÓÃ°¢ÀïÔÆDDNSÊµÏÖ¶¨Ê±Í¬²½¹¦ÄÜ£¬½â¾öË½ÓĞÔÆ¹«ÍøIPÍ¬²½ÎÊÌâ¡£
+## éƒ¨ç½²
 
-## ×ÊÁÏ
+- ä¸‹è½½
 
-1. [°¢ÀïÔÆOPENAPI](https://next.api.aliyun.com/api-tools/sdk/Alidns?version=2015-01-09&language=csharp-tea&tab=primer-doc)
+```command
+git clone https://github.com/ly2jr/aliyun.ddns
+```
 
-2. [.NET Docker](https://learn.microsoft.com/zh-cn/dotnet/core/docker/introduction)
+- éƒ¨ç½²
+
+æ›´æ”¹`docker-compose.yml`ç¯å¢ƒå˜é‡,
+
+`ALIKID`ï¼šé˜¿é‡Œäº‘è´¦å·
+`ALIKSCT`ï¼šé˜¿é‡Œäº‘å¯†ç 
+`ALIDOMAIN`ï¼šåŸŸå
+
+```command
+docker compose up -d
+```

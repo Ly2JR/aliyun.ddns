@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   ali.ddns:
+    container_name: 'aliyun-ddns'
     image: 'ali.ddns:1.0.0'
     build: 
       context: ./
@@ -9,9 +10,9 @@ services:
     networks:
       - product-network
     environment:
-      - ALIKID=''
-      - ALIKSCT=''
-      - ALIDOMAIN='ilyl.life'
+      - ALIKID=
+      - ALIKSCT=
+      - ALIDOMAIN=ilyl.life
       - ALITTL=600
 
 networks:
