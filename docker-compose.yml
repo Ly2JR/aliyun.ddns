@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  ali.ddns:
+    image: 'ali.ddns:1.0.0'
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    networks:
+      - product-network
+    environment:
+      - ALIKID=''
+      - ALIKSCT=''
+      - ALIDOMAIN='ilyl.life'
+      - ALITTL=600
+
+networks:
+  product-network:
+    driver: bridge

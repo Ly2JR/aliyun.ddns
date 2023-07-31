@@ -3,9 +3,6 @@
     "neverland.aliyun.ddns": {
       "commandName": "Project",
       "environmentVariables": {
-        "ALIKID": "11",
-        "ALIKSCT": "11",
-        "ALIDOMAIN": "ilyl.life",
         "ALITTL": "600"
       }
     },

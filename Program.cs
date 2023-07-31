@@ -8,41 +8,45 @@ using AlibabaCloud.TeaUtil.Models;
 using neverland.aliyun.ddns;
 using Tea;
 
-//DEBUG默认值
-#if DEBUG
-var key = Contracts.DEBUG_ALIBABA_CLOUD_ACCESS_KEY_ID;
-var keySct = Contracts.DEBUG_ALIBABA_CLOUD_ACCESS_KEY_SECRET;
-var domain = Contracts.DEBUG_ALIBABA_DOMAIN;
-var ttl = Contracts.DEFAULT_ALIBABA_REQUEST_TTL;
-#endif
-
-//从环境变量读取
+#region 从环境变量读取
 var varKey = Environment.GetEnvironmentVariable(Contracts.VAR_ALIBABA_CLOUD_ACCESS_KEY_ID);
-if (varKey == null)
+if (string.IsNullOrEmpty(varKey))
 {
-    Console.WriteLine($"{Contracts.TITLE}同步失败,未获取到环境变量[{Contracts.VAR_ALIBABA_CLOUD_ACCESS_KEY_ID}]");
-    return;
+#if DEBUG
+    varKey = Contracts.DEBUG_ALIBABA_CLOUD_ACCESS_KEY_ID;
+#else
+    Console.WriteLine($"{Contracts.TITLE}同步失败,未获取到环境变量[{Contracts.VAR_ALIBABA_CLOUD_ACCESS_KEY_ID}],3秒后退出...");
+    await Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(t => Environment.Exit(0)).ConfigureAwait(false);
+#endif
 }
 var varKeySecret = Environment.GetEnvironmentVariable(Contracts.VAR_ALIBABA_CLOUD_ACCESS_KEY_SECRET);
-if (varKeySecret == null)
+if (string.IsNullOrEmpty(varKeySecret))
 {
-    Console.WriteLine($"{Contracts.TITLE}同步失败,未获取到环境变量[{Contracts.VAR_ALIBABA_CLOUD_ACCESS_KEY_SECRET}]");
-    return;
+#if DEBUG
+    varKeySecret = Contracts.DEBUG_ALIBABA_CLOUD_ACCESS_KEY_SECRET;
+#else
+    Console.WriteLine($"{Contracts.TITLE}同步失败,未获取到环境变量[{Contracts.VAR_ALIBABA_CLOUD_ACCESS_KEY_SECRET}],3秒后退出...");
+    await Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(t => Environment.Exit(0)).ConfigureAwait(false);
+#endif
 }
 var varDomain = Environment.GetEnvironmentVariable(Contracts.VAR_ALIBABA_CLUND_DOMAIN);
-if (varDomain == null)
+if (string.IsNullOrEmpty(varDomain))
 {
-    Console.WriteLine($"{Contracts.TITLE}同步失败,未获取到环境变量[{Contracts.VAR_ALIBABA_CLUND_DOMAIN}]");
-    return;
+#if DEBUG
+    varDomain= Contracts.DEBUG_ALIBABA_DOMAIN;
+#else
+    Console.WriteLine($"{Contracts.TITLE}同步失败,未获取到环境变量[{Contracts.VAR_ALIBABA_CLUND_DOMAIN}],3秒后退出...");
+    await Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith(t => Environment.Exit(0)).ConfigureAwait(false);
+#endif
 }
 var varTtl = Environment.GetEnvironmentVariable(Contracts.VAR_ALIBABA_CLOUD_TTL);
-key = varKey;
-keySct = varKeySecret;
-domain = varDomain;
+var ttl = Contracts.DEFAULT_ALIBABA_REQUEST_TTL;
 if (int.TryParse(varTtl, out int t))
 {
     ttl = t;
 }
+#endregion
+
 var lastNetworkIpAddress = "127.0.0.1";
 
 Console.Clear();
@@ -53,16 +57,16 @@ void ExitHandler(object? sender, ConsoleCancelEventArgs e)
     Console.WriteLine("退出程序");
 }
 
-Console.Write("Press any key,or `q` to exit,or ");
-Console.WriteLine("CTRL+C to interrupt the read operation:");
+Console.WriteLine("Press any key,or `q` or `CTRL+C` to exit...");
 
 var cancelSource = new CancellationTokenSource();
 Run(cancelSource.Token);
 
-var cki = Console.ReadKey(true);
+var cki = Console.ReadKey(false);
 if (cki.Key == ConsoleKey.Q)
 {
     cancelSource.Cancel();
+    Console.WriteLine("退出程序...");
 }
 
 void Run(CancellationToken cts=new CancellationToken())
@@ -77,33 +81,48 @@ void Run(CancellationToken cts=new CancellationToken())
             if (!string.IsNullOrEmpty(networkIp) && !networkIp.Equals(lastNetworkIpAddress))
             {
                 //获取阿里OPENAPI客户端
-                var client = CreateClient(key, keySct);
+                var client = CreateClient(varKey, varKeySecret);
                 //查询已有记录
-                var query = QueryDns(client, domain);
-                if (query != null)
+                var query = QueryDns(client, varDomain);
+                if (query == null)
                 {
-                    var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == domain);
-                    if (record == null)//新增云解析
-                    {
-                        var add = AddDns(client, networkIp, domain, ttl);
-                        if (add != null)
-                        {
-                            //加个公网IP缓存，IP地址变动时更新
-                            lastNetworkIpAddress = networkIp;
-                            Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{domain},地址:{networkIp}");
-                        }
-                    }
-                    else //修改云解析
-                    {
-                        var update = UpdateDns(client, record.RecordId, networkIp);
-                        if (update != null)
-                        {
-                            //加个公网IP缓存，IP地址变动时更新
-                            lastNetworkIpAddress = networkIp;
-                            Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{domain},地址:{networkIp}");
-                        }
-                    }
+                    Console.WriteLine("查询阿里云信息错误,3秒后退出...");
+                    cancelSource.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+                    Environment.Exit(0);
+                    return;
                 }
+
+                var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == varDomain);
+                if (record == null)//新增云解析
+                {
+                    var add = AddDns(client, networkIp, varDomain, ttl);
+                    if (add == null)
+                    {
+                        Console.WriteLine("新增阿里云信息错误,3秒后退出...");
+                        cancelSource.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+                        Environment.Exit(0);
+                        return;
+                    }
+                    Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{varDomain},地址:{networkIp}");
+                }
+                else //修改云解析
+                {
+                    var update = UpdateDns(client, record.RecordId, networkIp);
+                    if (update == null)
+                    {
+                        Console.WriteLine("修改阿里云信息错误,3秒后退出...");
+                        cancelSource.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+                        Environment.Exit(0);
+                        return;
+                    }
+                    Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{varDomain},地址:{networkIp}");
+                }
+                //加个公网IP缓存，IP地址变动时更新
+                lastNetworkIpAddress = networkIp;
+            }
+            else
+            {
+                Console.WriteLine("公网IP无变化，无需更新");
             }
 
             await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
