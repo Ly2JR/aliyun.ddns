@@ -3,15 +3,18 @@
     "neverland.aliyun.ddns": {
       "commandName": "Project",
       "environmentVariables": {
-        "ALITTL": "600"
+        "ALITTL": "600",
+        "ALIKID": "1",
+        "ALIKSCT": "1",
+        "ALIDOMAIN": "1"
       }
     },
     "WSL": {
       "commandName": "WSL2",
       "environmentVariables": {
-        "ALIDOMAIN": "ilyl.life",
-        "ALIKID": "11",
-        "ALIKSCT": "11",
+        "ALIDOMAIN": "1",
+        "ALIKID": "1",
+        "ALIKSCT": "1",
         "ALITTL": "600"
       },
       "distributionName": ""

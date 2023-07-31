@@ -57,77 +57,62 @@ void ExitHandler(object? sender, ConsoleCancelEventArgs e)
     Console.WriteLine("退出程序");
 }
 
-Console.WriteLine("Press any key,or `q` or `CTRL+C` to exit...");
+Console.WriteLine("Press any key to exit...");
 
-var cancelSource = new CancellationTokenSource();
-Run(cancelSource.Token);
-
-var cki = Console.ReadKey(false);
-if (cki.Key == ConsoleKey.Q)
+var cts = new CancellationTokenSource();
+while (!cts.IsCancellationRequested)
 {
-    cancelSource.Cancel();
-    Console.WriteLine("退出程序...");
-}
+    //查询外网地址
+    var networkIp = await IPHelper.GetNetworkIPv4();
 
-void Run(CancellationToken cts=new CancellationToken())
-{
-    Task.Factory.StartNew(async() =>
+    if (!string.IsNullOrEmpty(networkIp) && !networkIp.Equals(lastNetworkIpAddress))
     {
-        while (!cts.IsCancellationRequested)
+        //获取阿里OPENAPI客户端
+        var client = CreateClient(varKey, varKeySecret);
+        //查询已有记录
+        var query = QueryDns(client, varDomain);
+        if (query == null)
         {
-            //查询外网地址
-            var networkIp = await IPHelper.GetNetworkIPv4();          
-
-            if (!string.IsNullOrEmpty(networkIp) && !networkIp.Equals(lastNetworkIpAddress))
-            {
-                //获取阿里OPENAPI客户端
-                var client = CreateClient(varKey, varKeySecret);
-                //查询已有记录
-                var query = QueryDns(client, varDomain);
-                if (query == null)
-                {
-                    Console.WriteLine("查询阿里云信息错误,3秒后退出...");
-                    cancelSource.CancelAfter(TimeSpan.FromMilliseconds(3_000));
-                    Environment.Exit(0);
-                    return;
-                }
-
-                var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == varDomain);
-                if (record == null)//新增云解析
-                {
-                    var add = AddDns(client, networkIp, varDomain, ttl);
-                    if (add == null)
-                    {
-                        Console.WriteLine("新增阿里云信息错误,3秒后退出...");
-                        cancelSource.CancelAfter(TimeSpan.FromMilliseconds(3_000));
-                        Environment.Exit(0);
-                        return;
-                    }
-                    Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{varDomain},地址:{networkIp}");
-                }
-                else //修改云解析
-                {
-                    var update = UpdateDns(client, record.RecordId, networkIp);
-                    if (update == null)
-                    {
-                        Console.WriteLine("修改阿里云信息错误,3秒后退出...");
-                        cancelSource.CancelAfter(TimeSpan.FromMilliseconds(3_000));
-                        Environment.Exit(0);
-                        return;
-                    }
-                    Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{varDomain},地址:{networkIp}");
-                }
-                //加个公网IP缓存，IP地址变动时更新
-                lastNetworkIpAddress = networkIp;
-            }
-            else
-            {
-                Console.WriteLine("公网IP无变化，无需更新");
-            }
-
-            await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
+            Console.WriteLine("查询阿里云信息错误,3秒后退出...");
+            cts.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+            Environment.Exit(0);
+            return;
         }
-    },cts);
+
+        var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == varDomain);
+        if (record == null)//新增云解析
+        {
+            var add = AddDns(client, networkIp, varDomain, ttl);
+            if (add == null)
+            {
+                Console.WriteLine("新增阿里云信息错误,3秒后退出...");
+                cts.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+                Environment.Exit(0);
+                return;
+            }
+            Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{varDomain},地址:{networkIp}");
+        }
+        else //修改云解析
+        {
+            var update = UpdateDns(client, record.RecordId, networkIp);
+            if (update == null)
+            {
+                Console.WriteLine("修改阿里云信息错误,3秒后退出...");
+                cts.CancelAfter(TimeSpan.FromMilliseconds(3_000));
+                Environment.Exit(0);
+                return;
+            }
+            Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{varDomain},地址:{networkIp}");
+        }
+        //加个公网IP缓存，IP地址变动时更新
+        lastNetworkIpAddress = networkIp;
+    }
+    else
+    {
+        Console.WriteLine("公网IP无变化，无需更新");
+    }
+
+    await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
 }
 
 
