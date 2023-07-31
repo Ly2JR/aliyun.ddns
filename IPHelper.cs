@@ -23,25 +23,44 @@ namespace neverland.aliyun.ddns
                 //var query = await client.GetFromJsonAsync<IPModelResult>(Contracts.QUERY_IPADDRESS_RESOURCE, cancelllationToken)
                 //     .ConfigureAwait(false);
 
-                using var response = await client.GetAsync(Contracts.QUERY_IPADDRESS_RESOURCE, cancelllationToken)
-                     .ConfigureAwait(false);
-                response.EnsureSuccessStatusCode().WriteRequestToConsole();
-
-                //检查受限情况
-                var ri = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_RI).Value;
-                if (ri != null)
+                try
                 {
-                    if (ri.ElementAt(0) == "0")
+                    using var response = await client.GetAsync(Contracts.QUERY_IPADDRESS_RESOURCE, cancelllationToken)
+                     .ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode().WriteRequestToConsole();
+                    //检查受限情况
+                    var ri = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_RI).Value;
+                    if (ri != null)
                     {
-                        var ttl = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_TTL).Value;
-                        Console.WriteLine($"{Contracts.TITLE}ip地址查询受限,等待{ttl.ElementAt(0)}秒后重试");
-                        return string.Empty;
+                        if (ri.ElementAt(0) == "0")
+                        {
+                            var ttl = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_TTL).Value;
+                            Console.WriteLine($"{Contracts.TITLE}ip地址查询受限,等待{ttl.ElementAt(0)}秒后重试");
+                            return string.Empty;
+                        }
+                    }
+                    var jsonResponse = await response.Content.ReadFromJsonAsync<IPModelResult>();
+                    if (jsonResponse != null)
+                    {
+                        if (jsonResponse.Status != null && jsonResponse.Status == "success") {
+                            var networkIp = jsonResponse.Query!;
+                            Console.WriteLine($"公网IP:{networkIp}");
+                            return networkIp;
+                        } 
                     }
                 }
-                var jsonResponse = await response.Content.ReadFromJsonAsync<IPModelResult>();
-                if (jsonResponse != null)
+                catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException tex)
                 {
-                    if (jsonResponse.Status != null && jsonResponse.Status == "success") return jsonResponse.Query!;
+                    Console.WriteLine($"Timed out: {ex.Message}, {tex.Message}");
+                }
+                catch (HttpRequestException ex) when (ex is { StatusCode: HttpStatusCode.NotFound })
+                {
+                    // Handle 404
+                    Console.WriteLine($"Not found: {ex.Message}");
+                }
+                catch (HttpRequestException ex) when (ex is { StatusCode: null })
+                {
+                    Console.WriteLine($"网络连接失败: {ex.Message}");
                 }
             }
             return string.Empty;

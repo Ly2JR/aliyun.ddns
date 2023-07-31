@@ -43,52 +43,74 @@ if (int.TryParse(varTtl, out int t))
 {
     ttl = t;
 }
-
-Console.WriteLine("Press `q` to exit.");
-var exitKey = Console.ReadLine();
-
 var lastNetworkIpAddress = "127.0.0.1";
 
-while (exitKey == null || (exitKey != null && !exitKey.ToLower().Equals(Contracts.DEFAULT_EXIT_KEY)))
+Console.Clear();
+Console.CancelKeyPress += ExitHandler;
+void ExitHandler(object? sender, ConsoleCancelEventArgs e)
 {
-    //查询外网地址
-    var networkIp = await IPHelper.GetNetworkIPv4();
-    Console.WriteLine($"公网IP:{networkIp}");
-
-    if (!string.IsNullOrEmpty(networkIp)&&!networkIp.Equals(lastNetworkIpAddress))
-    {
-        //加个公网IP缓存，IP地址变动时更新
-        lastNetworkIpAddress = networkIp;
-
-        //获取阿里OPENAPI客户端
-        var client = CreateClient(key, keySct);
-        //查询已有记录
-        var query = QueryDns(client, domain);
-        if (query != null)
-        {
-            var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.Value == networkIp);
-            if (record == null)//新增云解析
-            {
-                var add = AddDns(client, networkIp, domain, ttl);
-                if (add != null)
-                {
-                    Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{domain},地址:{networkIp}");
-                }
-            }
-            else //修改云解析
-            {
-                var update = UpdateDns(client, record.RecordId, networkIp);
-                if (update != null)
-                {
-                    Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{domain},地址:{networkIp}");
-                }
-            }
-        }
-    }
-
-    await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
-    exitKey = Console.ReadLine();
+    e.Cancel = true;
+    Console.WriteLine("退出程序");
 }
+
+Console.Write("Press any key,or `q` to exit,or ");
+Console.WriteLine("CTRL+C to interrupt the read operation:");
+
+var cancelSource = new CancellationTokenSource();
+Run(cancelSource.Token);
+
+var cki = Console.ReadKey(true);
+if (cki.Key == ConsoleKey.Q)
+{
+    cancelSource.Cancel();
+}
+
+void Run(CancellationToken cts=new CancellationToken())
+{
+    Task.Factory.StartNew(async() =>
+    {
+        while (!cts.IsCancellationRequested)
+        {
+            //查询外网地址
+            var networkIp = await IPHelper.GetNetworkIPv4();          
+
+            if (!string.IsNullOrEmpty(networkIp) && !networkIp.Equals(lastNetworkIpAddress))
+            {
+                //获取阿里OPENAPI客户端
+                var client = CreateClient(key, keySct);
+                //查询已有记录
+                var query = QueryDns(client, domain);
+                if (query != null)
+                {
+                    var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == domain);
+                    if (record == null)//新增云解析
+                    {
+                        var add = AddDns(client, networkIp, domain, ttl);
+                        if (add != null)
+                        {
+                            //加个公网IP缓存，IP地址变动时更新
+                            lastNetworkIpAddress = networkIp;
+                            Console.WriteLine($"{Contracts.TITLE}新增云解析成功,域名:{domain},地址:{networkIp}");
+                        }
+                    }
+                    else //修改云解析
+                    {
+                        var update = UpdateDns(client, record.RecordId, networkIp);
+                        if (update != null)
+                        {
+                            //加个公网IP缓存，IP地址变动时更新
+                            lastNetworkIpAddress = networkIp;
+                            Console.WriteLine($"{Contracts.TITLE}修改云解析成功,域名:{domain},地址:{networkIp}");
+                        }
+                    }
+                }
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY));
+        }
+    },cts);
+}
+
 
 #region 阿里OPENAPI
 /**
@@ -165,7 +187,7 @@ DescribeDomainRecordsResponse? QueryDns(Client client, string domain = Contracts
     {
         // 如有需要，请打印 error
         var msg = Common.AssertAsString(error.Message);
-
+        Console.WriteLine($"{Contracts.TITLE}查询云解析失败,{msg}");
     }
     catch (Exception _error)
     {
@@ -219,3 +241,4 @@ AddDomainRecordResponse? AddDns(Client client, string newIp, string domain = Con
 }
 
 #endregion
+

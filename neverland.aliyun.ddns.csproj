@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <DelaySign>False</DelaySign>
-    <AssemblyOriginatorKeyFile>neverland.aliyun.ddns.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>C:\Users\新广科技\Desktop\neverland.aliyun.ddns.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
