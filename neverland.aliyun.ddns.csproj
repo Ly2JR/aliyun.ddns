@@ -8,8 +8,15 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyFile>snk\neverland.aliyun.ddns.snk</AssemblyOriginatorKeyFile>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+    <UserSecretsId>26e11be7-5ee4-422e-affd-6dd4a9e44a51</UserSecretsId>
   </PropertyGroup>
 
+<PropertyGroup>
+	<ServerGarbageCollection>true</ServerGarbageCollection>
+</PropertyGroup>
+	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -20,6 +27,14 @@
 
   <ItemGroup>
     <PackageReference Include="AlibabaCloud.SDK.Alidns20150109" Version="3.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.KeyPerFile" Version="7.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
   </ItemGroup>
 
 </Project>

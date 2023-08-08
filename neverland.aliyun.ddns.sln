@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "neverland.aliyun.ddns", "ne
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{8BDF1BCB-D41B-4402-AC4D-4204F1396380}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{BC453A89-1EBC-496D-8451-3D1300DD55B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{93AD428E-EC4F-41BF-BEF5-E540436A87E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93AD428E-EC4F-41BF-BEF5-E540436A87E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93AD428E-EC4F-41BF-BEF5-E540436A87E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC453A89-1EBC-496D-8451-3D1300DD55B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC453A89-1EBC-496D-8451-3D1300DD55B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC453A89-1EBC-496D-8451-3D1300DD55B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC453A89-1EBC-496D-8451-3D1300DD55B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

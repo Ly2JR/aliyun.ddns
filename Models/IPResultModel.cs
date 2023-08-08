@@ -5,17 +5,18 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace neverland.aliyun.ddns
+namespace neverland.aliyun.ddns.Models
 {
     /// <summary>
     /// 返回的IP结果
     /// <see cref="http://ip-api.com/json/?lang=zh-CN"/>
     /// </summary>
-    public record class IPModelResult
+    public record class IPResultModel
     {
-        public IPModelResult(string? status=null,string? query=null) {
-            this.Status= status; 
-            this.Query = query;   
+        public IPResultModel(string? status = null, string? query = null)
+        {
+            Status = status;
+            Query = query;
         }
         //[JsonPropertyName("status")]
         public string? Status { get; set; }

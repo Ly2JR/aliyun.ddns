@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  neverland.aliyun.ddns:
+    container_name: ALIYUN-DDNS
+    networks:
+      - product-network
+    environment:
+      - ALIKID=LTAI5tNk4ecfMa3n7v4xEn67    
+      - ALIKSCT=KcMe05cxVmaqqnlFcmOd6mHDScKoq2
+      - ALIKID_FILE=/run/secrets/alikid_secret
+      - ALIKSCT_FILE=/run/secrets/aliksct_secret
+      - ALIDOMAIN=ilyl.life
+      - ALITTL=600
+    secrets:
+      - alikid_secret
+      - aliksct_secret
+secrets:
+  alikid_secret:
+    file: ./alikid_secret.txt
+    external: true
+  aliksct_secret:
+    file: ./aliksct_secret.txt
+    external: true
+networks:
+  product-network:
+    driver: bridge

@@ -1,13 +1,7 @@
 {
   "profiles": {
     "neverland.aliyun.ddns": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "ALITTL": "600",
-        "ALIKID": "1",
-        "ALIKSCT": "1",
-        "ALIDOMAIN": "1"
-      }
+      "commandName": "Project"
     },
     "WSL": {
       "commandName": "WSL2",
@@ -18,6 +12,9 @@
         "ALITTL": "600"
       },
       "distributionName": ""
+    },
+    "Docker": {
+      "commandName": "Docker"
     }
   }
 }

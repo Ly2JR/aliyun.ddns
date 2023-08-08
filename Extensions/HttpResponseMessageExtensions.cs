@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace neverland.aliyun.ddns
+namespace neverland.aliyun.ddns.Extensions
 {
     public static class HttpResponseMessageExtensions
     {

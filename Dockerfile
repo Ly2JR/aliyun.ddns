@@ -1,24 +1,30 @@
-FROM mcr.microsoft.com/dotnet/nightly/sdk:7.0 AS build-env
-WORKDIR /neverland.aliyun.ddns
+﻿#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/runtime:7.0 AS base
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /src
+COPY ["neverland.aliyun.ddns.csproj", "."]
+RUN dotnet restore "./neverland.aliyun.ddns.csproj"
+COPY . .
+WORKDIR "/src/."
+RUN dotnet build "neverland.aliyun.ddns.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "neverland.aliyun.ddns.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
 
 LABEL MAINTAINER=乌龙茶有点甜<982474256@qq.com>
 
-# Copy everything
-COPY . ./
-# Restore as distinct layers
-RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -c Release
+ENV DOTNET_EnableDiagnostics=0
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/nightly/runtime:7.0
-WORKDIR /neverland.aliyun.ddns
-COPY --from=build-env /neverland.aliyun.ddns/bin/Release/net7.0/publish .
 ENTRYPOINT ["dotnet", "neverland.aliyun.ddns.dll"]
 
-ENV DOTNET_EnableDiagnostics=0 \
-    ALIKID= \
+ENV ALIKID= \
     ALIKSCT= \
     ALIDOMAIN=ilyl.life \
     ALITTL=600
-
