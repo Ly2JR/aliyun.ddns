@@ -10,7 +10,7 @@ builder.ConfigureAppConfiguration((config) =>
 {
     config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
     config.AddEnvironmentVariables(prefix: Contracts.VAR_PREFIEX);
-    config.AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
+    //config.AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
 });
 builder.ConfigureServices((hostContext, services) =>
 {
@@ -19,7 +19,6 @@ builder.ConfigureServices((hostContext, services) =>
     services.AddSingleton<IPServer>();
     services.AddHostedService<DDNSWorker>();
 });
-
 
 using var app = builder.Build();
 await app.RunAsync();

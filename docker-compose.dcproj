@@ -5,6 +5,9 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>bc453a89-1ebc-496d-8451-3d1300dd55b7</ProjectGuid>
   </PropertyGroup>
+  <PropertyGroup>
+    <DockerServiceName>neverland.aliyun.ddns</DockerServiceName>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>

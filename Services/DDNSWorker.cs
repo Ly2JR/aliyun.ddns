@@ -15,7 +15,7 @@ namespace neverland.aliyun.ddns.Services
         private string _lastNetworkIpAddress = "127.0.0.1";
         public DDNSWorker(
             IOptions<NeverlandOption> options,
-            ILogger<ConsoleWorker> logger,
+            ILogger<DDNSWorker> logger,
             AliyunServer aliyunServer,
             IPServer iPServer,
             IConfiguration config)
@@ -27,16 +27,18 @@ namespace neverland.aliyun.ddns.Services
             _ipServer= iPServer;
 
             #region 环境变量
-            var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key== nameof(NeverlandOption.ALIKID));
+            var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKID));
             if (!string.IsNullOrEmpty(alikid.Value))
             {
-                _aliyunOption.ALIKID= alikid.Value;
+                _aliyunOption.ALIKID = alikid.Value;
             }
+
             var aliksct = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKSCT));
             if (!string.IsNullOrEmpty(aliksct.Value))
             {
                 _aliyunOption.ALIKSCT = aliksct.Value;
             }
+
             var domain = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.DOMAIN));
             if (!string.IsNullOrEmpty(domain.Value))
             {
@@ -53,12 +55,35 @@ namespace neverland.aliyun.ddns.Services
                     }
                 }
             }
+
             #endregion
         }
 
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (string.IsNullOrEmpty(_aliyunOption.ALIKID))
+            {
+                _logger.LogInformation("未检索到阿里账号,3秒后退出...");
+                await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
+                Environment.Exit(0);
+                return;
+            }
+            if (string.IsNullOrEmpty(_aliyunOption.ALIKSCT))
+            {
+                _logger.LogInformation("未检索到阿里账号,3秒后退出...");
+                await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
+                Environment.Exit(0);
+                return;
+            }
+            if (string.IsNullOrEmpty(_aliyunOption.DOMAIN))
+            {
+                _logger.LogInformation("未检索到域名" +
+                    ",3秒后退出...");
+                await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
+                Environment.Exit(0);
+                return;
+            }
             while (!stoppingToken.IsCancellationRequested)
             {
                 //查询外网地址
@@ -72,7 +97,6 @@ namespace neverland.aliyun.ddns.Services
                     var query = _aliyunServer.QueryDns(client, _aliyunOption.DOMAIN);
                     if (query == null)
                     {
-                        _logger.LogInformation("查询阿里云信息错误,3秒后退出...");
                         await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
                         Environment.Exit(0);
                         return;
@@ -82,12 +106,11 @@ namespace neverland.aliyun.ddns.Services
                         var add = _aliyunServer.AddDns(client, networkIp, _aliyunOption.DOMAIN, _aliyunOption.TTL);
                         if (add == null)
                         {
-                            _logger.LogInformation("新增阿里云信息错误,3秒后退出...");
                             await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
                             Environment.Exit(0);
                             return;
                         }
-                        _logger.LogInformation($"{Contracts.TITLE}新增云解析成功,域名:{_aliyunOption.DOMAIN},地址:{networkIp}");
+                        _logger.LogInformation("{Source}新增云解析成功,域名:{Domain},地址:{ip}", Contracts.TITLE, _aliyunOption.DOMAIN, networkIp);
                     }
                     else
                     {
@@ -99,16 +122,15 @@ namespace neverland.aliyun.ddns.Services
                                 var update = _aliyunServer.UpdateDns(client, record.RecordId, networkIp);
                                 if (update == null)
                                 {
-                                    _logger.LogInformation("修改阿里云信息错误,3秒后退出...");
                                     await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
                                     Environment.Exit(0);
                                     return;
                                 }
-                                _logger.LogInformation($"{Contracts.TITLE}修改云解析成功,域名:{_aliyunOption.DOMAIN},地址:{networkIp}");
+                                _logger.LogInformation("{Source}修改云解析成功,域名:{Domain},地址:{ip}", Contracts.TITLE, _aliyunOption.DOMAIN, networkIp);
                             }
                             else
                             {
-                                _logger.LogInformation($"公网IP:{networkIp}无变化，无需同步");
+                                _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
                             }
                         }
                     }
@@ -118,7 +140,7 @@ namespace neverland.aliyun.ddns.Services
                 }
                 else
                 {
-                    _logger.LogInformation($"公网IP:{networkIp}无变化，无需同步");
+                    _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY), stoppingToken);
