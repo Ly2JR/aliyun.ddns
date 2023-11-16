@@ -13,13 +13,19 @@ git clone https://github.com/ly2jr/aliyun.ddns
 - 环境变量
 
     `ALIKID`：阿里云账号
+
     `ALIKSCT`：阿里云密码
-    `DOMAIN`：域名，
-    `TTL`: 生效时间，默认600
+
+    `DOMAIN`：域名
+
+    `TTL`: 生效时间，默认600s
 
     优先级从高到低
+
     最高:环境变量
+
     其次:`appsetting.json`
+
     最低:`NeverlandOption`
 
 - 运行
