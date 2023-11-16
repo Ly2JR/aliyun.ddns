@@ -14,7 +14,7 @@ builder.ConfigureAppConfiguration((config) =>
 });
 builder.ConfigureServices((hostContext, services) =>
 {
-    services.Configure<NeverlandOption>(hostContext.Configuration.GetSection(nameof(NeverlandOption)));
+    //services.ConfigureOptions<NeverlandOptionsSetup>();
     services.AddSingleton<AliyunServer>();
     services.AddSingleton<IPServer>();
     services.AddHostedService<DDNSWorker>();

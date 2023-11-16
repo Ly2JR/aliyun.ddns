@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Text;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using neverland.aliyun.ddns.Consts;
 using neverland.aliyun.ddns.Extensions;
 using neverland.aliyun.ddns.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace neverland.aliyun.ddns.Services
 {
@@ -17,6 +19,8 @@ namespace neverland.aliyun.ddns.Services
             _logger = logger;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "<Pending>")]
         public async Task<string> GetNetworkIPv4(CancellationToken cancelllationToken = new CancellationToken())
         {
             using (var client = new HttpClient())
@@ -43,7 +47,7 @@ namespace neverland.aliyun.ddns.Services
                             return string.Empty;
                         }
                     }
-                    var jsonResponse = await response.Content.ReadFromJsonAsync<IPResultModel>(cancellationToken:cancelllationToken);
+                    var jsonResponse = await response.Content.ReadFromJsonAsync<IPResultModel>(cancelllationToken);
                     if (jsonResponse != null)
                     {
                         if (jsonResponse.Status != null && jsonResponse.Status == "success")
@@ -53,6 +57,10 @@ namespace neverland.aliyun.ddns.Services
                             return networkIp;
                         }
                     }
+                }
+                catch(ArgumentNullException ex)
+                {
+                    _logger.LogInformation("获取IP错误:{0}", ex.Message);
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException tex)
                 {
