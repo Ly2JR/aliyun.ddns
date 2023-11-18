@@ -53,7 +53,7 @@ namespace neverland.aliyun.ddns.Consts
         /// 只查询IP地址和状态
         /// <see cref="http://ip-api.com"/>
         /// </summary>
-        public const string QUERY_IPADDRESS_RESOURCE = "/json/?lang=zh-CN&fields=status,query";
+        public const string QUERY_IPADDRESS_RESOURCE = "/json/?lang=zh-CN&fields=status,message,query";
 
         public const string QUERY_IPADDRESS_HEADER_TTL = "X-Ttl";
         public const string QUERY_IPADDRESS_HEADER_RI = "X-Rl";

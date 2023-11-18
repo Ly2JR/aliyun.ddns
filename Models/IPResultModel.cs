@@ -11,16 +11,14 @@ namespace neverland.aliyun.ddns.Models
     /// 返回的IP结果
     /// <see cref="http://ip-api.com/json/?lang=zh-CN"/>
     /// </summary>
-    public record class IPResultModel
+ 
+    public record IPResultModel(string Status,string Message,string Query)
     {
-        public IPResultModel(string? status = null, string? query = null)
-        {
-            Status = status;
-            Query = query;
-        }
-        //[JsonPropertyName("status")]
-        public string? Status { get; set; }
 
-        public string? Query { get; set; }
+        public string? Status { get; set; } = Status;
+
+        public string? Message { get; set; }=Message;
+
+        public string? Query { get; set; } = Query;
     }
 }

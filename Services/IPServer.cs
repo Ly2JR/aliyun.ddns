@@ -19,8 +19,6 @@ namespace neverland.aliyun.ddns.Services
             _logger = logger;
         }
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-        [UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "<Pending>")]
         public async Task<string> GetNetworkIPv4(CancellationToken cancelllationToken = new CancellationToken())
         {
             using (var client = new HttpClient())

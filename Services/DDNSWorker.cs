@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using neverland.aliyun.ddns.Consts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace neverland.aliyun.ddns.Services
 {
@@ -58,7 +59,6 @@ namespace neverland.aliyun.ddns.Services
 
             #endregion
         }
-
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -140,7 +140,10 @@ namespace neverland.aliyun.ddns.Services
                 }
                 else
                 {
-                    _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
+                    if (!string.IsNullOrEmpty(networkIp))
+                    {
+                        _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
+                    }
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY), stoppingToken);
