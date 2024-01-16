@@ -14,7 +14,13 @@
       "distributionName": ""
     },
     "Docker": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "environmentVariables": {
+        "ALIKID": "123",
+        "ALIKSCT": "456",
+        "DOMAIN": "ilyl.life",
+        "TTL": "600"
+      }
     }
   }
 }
