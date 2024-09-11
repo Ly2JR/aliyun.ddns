@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["./neverland.aliyun.ddns"]
 
-LABEL MAINTAINER=乌龙茶有点甜<982474256@qq.com>
+LABEL MAINTAINER=乌龙茶有点甜<ly2@ilyl.life>
 
 ENV ALIKID= \
     ALIKSCT= \
