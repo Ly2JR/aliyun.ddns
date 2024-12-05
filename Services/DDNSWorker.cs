@@ -97,18 +97,20 @@ namespace neverland.aliyun.ddns.Services
                     var query = _aliyunServer.QueryDns(client, _aliyunOption.DOMAIN);
                     if (query == null)
                     {
-                        await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
+                        await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
                         Environment.Exit(0);
                         return;
+                        //continue;
                     }
                     if (query.Body.DomainRecords.Record.Count == 0)
                     {
                         var add = _aliyunServer.AddDns(client, networkIp, _aliyunOption.DOMAIN, _aliyunOption.TTL);
                         if (add == null)
                         {
-                            await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
+                            await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
                             Environment.Exit(0);
                             return;
+                            //continue;
                         }
                         _logger.LogInformation("{Source}新增云解析成功,域名:{Domain},地址:{ip}", Contracts.TITLE, _aliyunOption.DOMAIN, networkIp);
                     }
@@ -122,9 +124,10 @@ namespace neverland.aliyun.ddns.Services
                                 var update = _aliyunServer.UpdateDns(client, record.RecordId, networkIp);
                                 if (update == null)
                                 {
-                                    await Task.Delay(TimeSpan.FromMilliseconds(3_000), stoppingToken);
+                                    await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
                                     Environment.Exit(0);
                                     return;
+                                    //return;
                                 }
                                 _logger.LogInformation("{Source}修改云解析成功,域名:{Domain},地址:{ip}", Contracts.TITLE, _aliyunOption.DOMAIN, networkIp);
                             }
@@ -143,6 +146,10 @@ namespace neverland.aliyun.ddns.Services
                     if (!string.IsNullOrEmpty(networkIp))
                     {
                         _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("获取IP异常,等待重试");
                     }
                 }
 

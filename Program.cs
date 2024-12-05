@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using neverland.aliyun.ddns;
 using neverland.aliyun.ddns.Consts;
 using neverland.aliyun.ddns.Services;
 
@@ -10,11 +9,9 @@ builder.ConfigureAppConfiguration((config) =>
 {
     config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
     config.AddEnvironmentVariables(prefix: Contracts.VAR_PREFIEX);
-    //config.AddKeyPerFile(directoryPath: "/run/secrets", optional: true);
 });
 builder.ConfigureServices((hostContext, services) =>
 {
-    //services.ConfigureOptions<NeverlandOptionsSetup>();
     services.AddSingleton<AliyunServer>();
     services.AddSingleton<IPServer>();
     services.AddHostedService<DDNSWorker>();

@@ -1,14 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Net.Http.Json;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using neverland.aliyun.ddns.Consts;
 using neverland.aliyun.ddns.Extensions;
 using neverland.aliyun.ddns.Models;
-using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace neverland.aliyun.ddns.Services
 {
