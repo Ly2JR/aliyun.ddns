@@ -25,7 +25,6 @@ RUN dotnet publish "./neverland.aliyun.ddns.csproj" -c $BUILD_CONFIGURATION -o /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "neverland.aliyun.ddns.dll"]
 
 LABEL MAINTAINER=乌龙茶有点甜<ly2@ilyl.life>
 
@@ -33,3 +32,6 @@ ENV ALIKID= \
     ALIKSCT= \
     ALIDOMAIN=ilyl.life \
     ALITTL=600
+
+ENTRYPOINT ["dotnet", "neverland.aliyun.ddns.dll"]
+

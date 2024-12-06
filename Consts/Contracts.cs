@@ -38,13 +38,13 @@ namespace neverland.aliyun.ddns.Consts
         /// 检测频率
         /// 单位：s
         /// </summary>
-        public const int DEFAULT_EXECUTION_FREQUENCY = 20;
+        public const int DEFAULT_EXECUTION_FREQUENCY = 600;
 
         /// <summary>
         /// 出现网络问题重试
         /// 单位:s
         /// </summary>
-        public const int DEFAULT_EXCEPTION_FREQUENCY = 180;
+        public const int DEFAULT_EXCEPTION_FREQUENCY = 3;
 
         /// <summary>
         /// </summary>

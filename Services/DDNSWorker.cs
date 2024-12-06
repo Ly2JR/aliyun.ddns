@@ -28,24 +28,31 @@ namespace neverland.aliyun.ddns.Services
             _ipServer= iPServer;
 
             #region 环境变量
-            var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKID)||it.Key==$"{nameof(NeverlandOption)}:{nameof(NeverlandOption.ALIKID)}");
+            //foreach(var c in config.AsEnumerable())
+            //{
+            //    Console.WriteLine(c.Key + "  " + c.Value);
+            //}
+            //.NET Core 8.0：参数值
+            //.NET Core 9.0-alpine：参数值
+            //.NET Core 9.0: 类名:参数值
+            var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKID));
             if (!string.IsNullOrEmpty(alikid.Value))
             {
                 _aliyunOption.ALIKID = alikid.Value;
             }
 
-            var aliksct = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKSCT)||it.Key== $"{nameof(NeverlandOption)}:{nameof(NeverlandOption.ALIKSCT)}");
+            var aliksct = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKSCT));
             if (!string.IsNullOrEmpty(aliksct.Value))
             {
                 _aliyunOption.ALIKSCT = aliksct.Value;
             }
 
-            var domain = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.DOMAIN)|| it.Key == $"{nameof(NeverlandOption)}:{nameof(NeverlandOption.DOMAIN)}");
+            var domain = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.DOMAIN));
             if (!string.IsNullOrEmpty(domain.Value))
             {
                 _aliyunOption.DOMAIN = domain.Value;
             }
-            var ttl = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.TTL) || it.Key == $"{nameof(NeverlandOption)}:{nameof(NeverlandOption.TTL)}");
+            var ttl = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.TTL));
             if (!string.IsNullOrEmpty(ttl.Value))
             {
                 if(int.TryParse(ttl.Value, out int varTtl))

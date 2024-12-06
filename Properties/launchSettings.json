@@ -1,7 +1,8 @@
 {
   "profiles": {
     "neverland.aliyun.ddns": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "nativeDebugging": true
     },
     "WSL": {
       "commandName": "WSL2",
@@ -17,7 +18,7 @@
       "commandName": "Docker",
       "environmentVariables": {
         "ALIKID": "123",
-        "ALIKSCT": "456",
+        "ALIKSCT": "123",
         "DOMAIN": "ilyl.life",
         "TTL": "600"
       }
