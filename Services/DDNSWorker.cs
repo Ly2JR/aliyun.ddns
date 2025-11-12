@@ -93,73 +93,66 @@ namespace neverland.aliyun.ddns.Services
             }
             while (!stoppingToken.IsCancellationRequested)
             {
-                //查询外网地址
-                var networkIp = await _ipServer.GetNetworkIPv4(stoppingToken);
-
-                if (!string.IsNullOrEmpty(networkIp) && !networkIp.Equals(_lastNetworkIpAddress))
+                //查询外网IP
+                var queryIp = await _ipServer.GetNetworkIP(stoppingToken);
+                if (queryIp.IP is null)
                 {
-                    //获取阿里OPENAPI客户端
-                    var client = _aliyunServer.CreateClient(_aliyunOption.ALIKID, _aliyunOption.ALIKSCT);
-                    //查询已有记录
-                    var query = _aliyunServer.QueryDns(client, _aliyunOption.DOMAIN);
-                    if (query == null)
+                    _logger.LogInformation("获取IP异常,等待重试");
+                }
+                else
+                {
+                    var type = Contracts.DEFAULT_ALIYUN_REQUEST_TYPE_A;
+                    if (queryIp.IsIPv6)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
-                        Environment.Exit(0);
-                        return;
-                        //continue;
+                        type = Contracts.DEFAULT_ALIYUN_REQUEST_TYPE_AAAA;
                     }
-                    if (query.Body.DomainRecords.Record.Count == 0)
+                    if (queryIp.IsSuccess && !_lastNetworkIpAddress.Equals(queryIp.IP))
                     {
-                        var add = _aliyunServer.AddDns(client, networkIp, _aliyunOption.DOMAIN, _aliyunOption.TTL);
-                        if (add == null)
+                        //获取阿里OPENAPI客户端
+                        var client = _aliyunServer.CreateClient(_aliyunOption.ALIKID, _aliyunOption.ALIKSCT);
+                        //查询已有记录
+                        var queryDns = _aliyunServer.QueryDns(client, _aliyunOption.DOMAIN,type);
+                        if (queryDns == null)
                         {
                             await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
                             Environment.Exit(0);
                             return;
-                            //continue;
                         }
-                        _logger.LogInformation("{Source}新增云解析成功,域名:{Domain},地址:{ip}", Contracts.TITLE, _aliyunOption.DOMAIN, networkIp);
-                    }
-                    else
-                    {
-                        var record = query.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == _aliyunOption.DOMAIN && o.Type == Contracts.DEFAULT_ALIYUN_REQUEST_TYPE_4);
-                        if (record != null)//新增云解析
+                        var record = queryDns.Body.DomainRecords.Record.FirstOrDefault(o => o.DomainName == _aliyunOption.DOMAIN && o.Type == type);
+                        if (record == null)
                         {
-                            if (!record.Value.Equals(networkIp))
+                            var add = _aliyunServer.AddDns(client, queryIp.IP, _aliyunOption.DOMAIN,type,_aliyunOption.TTL);
+                            if (add == null)
                             {
-                                var update = _aliyunServer.UpdateDns(client, record.RecordId, networkIp);
+                                await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
+                                Environment.Exit(0);
+                                return;
+                                //continue;
+                            }
+                            _logger.LogInformation("{Source}新增云解析成功,域名:{Domain},地址:{ip},IPv6:{IsIPv6}", Contracts.TITLE, _aliyunOption.DOMAIN, queryIp.IP, queryIp.IsIPv6);
+                        }
+                        else
+                        {
+                            if (!record.Value.Equals(queryIp.IP))
+                            {
+                                var update = _aliyunServer.UpdateDns(client, record.RecordId, queryIp.IP,type);
                                 if (update == null)
                                 {
                                     await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXCEPTION_FREQUENCY), stoppingToken);
                                     Environment.Exit(0);
                                     return;
-                                    //return;
                                 }
-                                _logger.LogInformation("{Source}修改云解析成功,域名:{Domain},地址:{ip}", Contracts.TITLE, _aliyunOption.DOMAIN, networkIp);
+                                _logger.LogInformation("{Source}修改云解析成功,域名:{Domain},地址:{ip},IPv6:{IPv6}", Contracts.TITLE, _aliyunOption.DOMAIN, queryIp.IP, queryIp.IsIPv6);
                             }
                             else
                             {
-                                _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
+                                _logger.LogInformation("公网IP:{ip}无变化，无需同步", queryIp.IP);
                             }
                         }
-                    }
-
-                    //加个公网IP缓存，IP地址变动时更新
-                    _lastNetworkIpAddress = networkIp;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(networkIp))
-                    {
-                        _logger.LogInformation("公网IP:{ip}无变化，无需同步", networkIp);
-                    }
-                    else
-                    {
-                        _logger.LogInformation("获取IP异常,等待重试");
+                        //加个公网IP缓存，IP地址变动时更新
+                        _lastNetworkIpAddress = queryIp.IP;
                     }
                 }
-
                 await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY), stoppingToken);
             }
 

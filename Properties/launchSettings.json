@@ -17,8 +17,8 @@
     "Docker": {
       "commandName": "Docker",
       "environmentVariables": {
-        "ALIKID": "123",
-        "ALIKSCT": "123",
+        "ALIKID": "",
+        "ALIKSCT": "",
         "DOMAIN": "ilyl.life",
         "TTL": "600"
       }

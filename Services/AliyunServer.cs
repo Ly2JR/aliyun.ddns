@@ -39,7 +39,7 @@ namespace neverland.aliyun.ddns.Services
             return new Client(config);
         }
 
-        public UpdateDomainRecordResponse? UpdateDns(Client client, string recordId, string newIp, string RR = Contracts.DEFAULT_ALIYUN_REQUEST_RR, string type = Contracts.DEFAULT_ALIYUN_REQUEST_TYPE_4)
+        public UpdateDomainRecordResponse? UpdateDns(Client client, string recordId, string newIp, string type, string RR = Contracts.DEFAULT_ALIYUN_REQUEST_RR)
         {
             var updateDomainRecordRequest = new UpdateDomainRecordRequest()
             {
@@ -74,7 +74,7 @@ namespace neverland.aliyun.ddns.Services
             return null;
         }
 
-        public DescribeDomainRecordsResponse? QueryDns(Client client, string domain, string type = Contracts.DEFAULT_ALIYUN_REQUEST_TYPE_4)
+        public DescribeDomainRecordsResponse? QueryDns(Client client, string domain, string type)
         {
             var describeDomainRecordsRequest = new DescribeDomainRecordsRequest()
             {
@@ -107,14 +107,14 @@ namespace neverland.aliyun.ddns.Services
             return null;
         }
 
-        public AddDomainRecordResponse? AddDns(Client client, string newIp, string domain, int ttl = Contracts.DEFAULT_ALIYUN_REQUEST_TTL)
+        public AddDomainRecordResponse? AddDns(Client client, string newIp, string domain,string type, int ttl = Contracts.DEFAULT_ALIYUN_REQUEST_TTL)
         {
             //参数
             var addDomainRecordRequest = new AddDomainRecordRequest()
             {
                 DomainName = domain,//域名名称
                 RR = Contracts.DEFAULT_ALIYUN_REQUEST_RR,//主机记录
-                Type = Contracts.DEFAULT_ALIYUN_REQUEST_TYPE_4,//解析记录类型
+                Type =type,//解析记录类型
                 Value = newIp,//记录值
                 TTL = ttl
             };

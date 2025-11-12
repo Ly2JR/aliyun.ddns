@@ -26,7 +26,11 @@ namespace neverland.aliyun.ddns.Consts
         /// <summary>
         /// 解析记录类型IP4
         /// </summary>
-        public const string DEFAULT_ALIYUN_REQUEST_TYPE_4 = "A";
+        public const string DEFAULT_ALIYUN_REQUEST_TYPE_A = "A";
+        /// <summary>
+        /// 解析记录类型IP6
+        /// </summary>
+        public const string DEFAULT_ALIYUN_REQUEST_TYPE_AAAA = "AAAA";
 
         /// <summary>
         /// TTL
@@ -49,11 +53,17 @@ namespace neverland.aliyun.ddns.Consts
         /// <summary>
         /// </summary>
         public const string DEFAULT_EXIT_KEY = "q";
-        
 
+        #region ipify   
+        public const string QUERY_IPIFYADDRESS_NAME="ipify";
+
+        public const string QUERY_IPIFYADDRESS_V4_URL = "https://api.ipify.org";
+        public const string QUERY_IPIFYADDRESS_V64_URL = "https://api64.ipify.org";
+        #endregion
+
+        #region ipapi
+        public const string QUERY_IPADDRESS_NAME = "ipapi";
         public const string QUERY_IPADDRESS_URL = "http://ip-api.com";
-
-        public const string QUERY_IPADDRESS_DOMAIN = "ip-api.com";
         /// <summary>
         /// 查询本地外网地址
         /// 只查询IP地址和状态
@@ -63,5 +73,6 @@ namespace neverland.aliyun.ddns.Consts
 
         public const string QUERY_IPADDRESS_HEADER_TTL = "X-Ttl";
         public const string QUERY_IPADDRESS_HEADER_RI = "X-Rl";
+        #endregion
     }
 }

@@ -4,53 +4,37 @@ using neverland.aliyun.ddns.Extensions;
 using neverland.aliyun.ddns.Models;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace neverland.aliyun.ddns.Services
 {
     public class IPServer
     {
         private readonly ILogger _logger;
-        public IPServer(ILogger<IPServer> logger)
+        private IHttpClientFactory _httpClientFactory;
+        public IPServer(ILogger<IPServer> logger,IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<string> GetNetworkIPv4(CancellationToken cancelllationToken = new CancellationToken())
+        public async Task<IPResultDto> GetNetworkIP(CancellationToken cancelllationToken = new CancellationToken())
         {
+            var ret = new IPResultDto();
             try
             {
-                using (var client = new HttpClient())
+                var client= _httpClientFactory.CreateClient(Contracts.QUERY_IPIFYADDRESS_NAME);
+                using var response = await client.GetAsync("/", cancelllationToken);
+                response.EnsureSuccessStatusCode().WriteRequestToConsole();
+                var ip = await response.Content.ReadAsStringAsync(cancelllationToken);
+                if(IPAddress.TryParse(ip, out var ipAddress))
                 {
-                    client.BaseAddress = new Uri(Contracts.QUERY_IPADDRESS_URL);
-
-                    //不使用这个是因为有使用限制,https://ip-api.com/docs/api:json
-                    //var query = await client.GetFromJsonAsync<IPModelResult>(Contracts.QUERY_IPADDRESS_RESOURCE, cancelllationToken)
-                    //     .ConfigureAwait(false);
-
-                    using var response = await client.GetAsync(Contracts.QUERY_IPADDRESS_RESOURCE, cancelllationToken)
-                        .ConfigureAwait(false);
-                    response.EnsureSuccessStatusCode().WriteRequestToConsole();
-                    //检查受限情况
-                    var ri = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_RI).Value;
-                    if (ri != null)
+                    ret.IsSuccess = true;
+                    if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
                     {
-                        if (ri.ElementAt(0) == "0")
-                        {
-                            var ttl = response.Headers.FirstOrDefault(it => it.Key == Contracts.QUERY_IPADDRESS_HEADER_TTL).Value;
-                            _logger.LogInformation("{0}ip地址查询受限,等待{1}秒后重试", Contracts.TITLE, ttl.ElementAt(0));
-                            return string.Empty;
-                        }
+                        ret.IsIPv6 = true;
                     }
-                    var jsonResponse = await response.Content.ReadFromJsonAsync<IPResultModel>(cancelllationToken);
-                    if (jsonResponse != null)
-                    {
-                        if (jsonResponse.Status != null && jsonResponse.Status == "success")
-                        {
-                            var networkIp = jsonResponse.Query!;
-                            _logger.LogInformation("公网IP:{0}", networkIp);
-                            return networkIp;
-                        }
-                    }
+                    ret.IP = ip;
                 }
             }
             catch (ArgumentNullException ex)
@@ -70,7 +54,7 @@ namespace neverland.aliyun.ddns.Services
             {
                 _logger.LogInformation("网络连接失败: {0}", ex.Message);
             }
-            return string.Empty;
+            return ret;
         }
     }
 }
