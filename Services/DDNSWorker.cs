@@ -28,10 +28,10 @@ namespace neverland.aliyun.ddns.Services
             _ipServer= iPServer;
 
             #region 环境变量
-            foreach (var c in config.AsEnumerable())
-            {
-                Console.WriteLine(c.Key + "  " + c.Value);
-            }
+            //foreach (var c in config.AsEnumerable())
+            //{
+            //    Console.WriteLine(c.Key + "  " + c.Value);
+            //}
             if (string.IsNullOrEmpty(_aliyunOption.ALIKID))
             {
                 var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKID));
@@ -156,6 +156,10 @@ namespace neverland.aliyun.ddns.Services
                         }
                         //加个公网IP缓存，IP地址变动时更新
                         _lastNetworkIpAddress = queryIp.IP;
+                    }
+                    else
+                    {
+                        _logger.LogInformation("公网IP:{ip}无变化，无需同步", queryIp.IP);
                     }
                 }
                 await Task.Delay(TimeSpan.FromSeconds(Contracts.DEFAULT_EXECUTION_FREQUENCY), stoppingToken);
