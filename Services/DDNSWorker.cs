@@ -28,34 +28,40 @@ namespace neverland.aliyun.ddns.Services
             _ipServer= iPServer;
 
             #region 环境变量
-            //foreach(var c in config.AsEnumerable())
-            //{
-            //    Console.WriteLine(c.Key + "  " + c.Value);
-            //}
-            //.NET Core 8.0：参数值
-            //.NET Core 9.0-alpine：参数值
-            //.NET Core 9.0: 类名:参数值
-            var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKID));
-            if (!string.IsNullOrEmpty(alikid.Value))
+            foreach (var c in config.AsEnumerable())
             {
-                _aliyunOption.ALIKID = alikid.Value;
+                Console.WriteLine(c.Key + "  " + c.Value);
+            }
+            if (string.IsNullOrEmpty(_aliyunOption.ALIKID))
+            {
+                var alikid = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKID));
+                if (!string.IsNullOrEmpty(alikid.Value))
+                {
+                    _aliyunOption.ALIKID = alikid.Value;
+                }
             }
 
-            var aliksct = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKSCT));
-            if (!string.IsNullOrEmpty(aliksct.Value))
+            if (string.IsNullOrEmpty(_aliyunOption.ALIKSCT))
             {
-                _aliyunOption.ALIKSCT = aliksct.Value;
+                var aliksct = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.ALIKSCT));
+                if (!string.IsNullOrEmpty(aliksct.Value))
+                {
+                    _aliyunOption.ALIKSCT = aliksct.Value;
+                }
+            }
+            if (string.IsNullOrEmpty(_aliyunOption.DOMAIN))
+            {
+                var domain = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.DOMAIN));
+                if (!string.IsNullOrEmpty(domain.Value))
+                {
+                    _aliyunOption.DOMAIN = domain.Value;
+                }
             }
 
-            var domain = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.DOMAIN));
-            if (!string.IsNullOrEmpty(domain.Value))
-            {
-                _aliyunOption.DOMAIN = domain.Value;
-            }
             var ttl = config.AsEnumerable().FirstOrDefault(it => it.Key == nameof(NeverlandOption.TTL));
             if (!string.IsNullOrEmpty(ttl.Value))
             {
-                if(int.TryParse(ttl.Value, out int varTtl))
+                if (int.TryParse(ttl.Value, out int varTtl))
                 {
                     if (varTtl >= 600 && varTtl <= 86400)
                     {
@@ -63,7 +69,6 @@ namespace neverland.aliyun.ddns.Services
                     }
                 }
             }
-
             #endregion
         }
 

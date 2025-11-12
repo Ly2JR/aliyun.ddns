@@ -13,10 +13,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <ServerGarbageCollection>true</ServerGarbageCollection>
-    <PublishAot>True</PublishAot>
-    <AssemblyVersion>1.3.4</AssemblyVersion>
-    <FileVersion>1.3.4</FileVersion>
-    <PublishTrimmed>True</PublishTrimmed>
+    <PublishAot>False</PublishAot>
+    <AssemblyVersion>1.3.5</AssemblyVersion>
+    <FileVersion>1.3.5</FileVersion>
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>portable</DebugType>
