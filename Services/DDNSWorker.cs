@@ -147,7 +147,7 @@ namespace neverland.aliyun.ddns.Services
                                     Environment.Exit(0);
                                     return;
                                 }
-                                _logger.LogInformation("{Source}修改云解析成功,域名:{Domain},地址:{ip},IPv6:{IPv6}", Contracts.TITLE, _aliyunOption.DOMAIN, queryIp.IP, queryIp.IsIPv6);
+                                _logger.LogInformation("{Source}修改云解析成功,域名:{Domain},原地址{old},新地址:{ip},IPv6:{IPv6}", Contracts.TITLE, _aliyunOption.DOMAIN,record.Value, queryIp.IP, queryIp.IsIPv6);
                             }
                             else
                             {
