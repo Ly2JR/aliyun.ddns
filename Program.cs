@@ -5,20 +5,22 @@ using neverland.aliyun.ddns;
 using neverland.aliyun.ddns.Consts;
 using neverland.aliyun.ddns.Services;
 
+
 var builder = Host.CreateDefaultBuilder(args);
 builder.ConfigureAppConfiguration((host,config) =>
 {
+    //config.Sources.Clear();
     IHostEnvironment env = host.HostingEnvironment;
-    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-    config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    config.SetBasePath(AppContext.BaseDirectory).AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+    config.SetBasePath(AppContext.BaseDirectory).AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
     config.AddEnvironmentVariables(prefix: Contracts.VAR_PREFIEX);
-    //NeverlandOption options = new();
-    //host.Configuration.GetSection(nameof(NeverlandOption))
-    //    .Bind(options);
+    var root=config.Build();
+    NeverlandOption options = new();
+    root.GetSection(nameof(NeverlandOption)).Bind(options);
 });
-
 builder.ConfigureServices((hostContext, services) =>
 {
+    services.AddOptions<NeverlandOption>().Bind(hostContext.Configuration.GetSection(nameof(NeverlandOption)));
     services.AddHttpClient(Contracts.QUERY_IPIFYADDRESS_NAME, client => client.BaseAddress = new Uri(Contracts.QUERY_IPIFYADDRESS_V64_URL));
     services.AddSingleton<AliyunServer>();
     services.AddSingleton<IPServer>();

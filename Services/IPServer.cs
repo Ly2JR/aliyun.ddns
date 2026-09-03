@@ -3,8 +3,6 @@ using neverland.aliyun.ddns.Consts;
 using neverland.aliyun.ddns.Extensions;
 using neverland.aliyun.ddns.Models;
 using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace neverland.aliyun.ddns.Services
 {

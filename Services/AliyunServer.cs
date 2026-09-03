@@ -79,7 +79,7 @@ namespace neverland.aliyun.ddns.Services
             var describeDomainRecordsRequest = new DescribeDomainRecordsRequest()
             {
                 DomainName = domain,
-                Type = type
+                Type = type,
             };
             var runtime = new RuntimeOptions();
             try
